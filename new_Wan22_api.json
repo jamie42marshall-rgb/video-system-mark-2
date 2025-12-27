@@ -1,7 +1,7 @@
 {
   "122": {
     "inputs": {
-      "model": "Wan2_2-I2V-A14B-HIGH_fp8_e4m3fn_scaled_KJ.safetensors",
+      "model": "Wan2.2_Remix_NSFW_i2v_14b_high_lighting_v2.0.safetensors",
       "base_precision": "bf16",
       "quantization": "disabled",
       "load_device": "offload_device",
@@ -366,7 +366,7 @@
   },
   "549": {
     "inputs": {
-      "model": "Wan2_2-I2V-A14B-LOW_fp8_e4m3fn_scaled_KJ.safetensors",
+      "model": "Wan2.2_Remix_NSFW_i2v_14b_low_lighting_v2.0.safetensors",
       "base_precision": "bf16",
       "quantization": "disabled",
       "load_device": "offload_device",
