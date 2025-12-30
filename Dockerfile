@@ -44,6 +44,8 @@ RUN cd /ComfyUI/custom_nodes && \
     cd ComfyUI-WanVideoWrapper && \
     pip install -r requirements.txt
 
+RUN sed -i 's/"sageattn_qk_int8_pv_fp8_cuda_sm90"/"sageattn_qk_int8_pv_fp8_cuda++"/g' /ComfyUI/custom_nodes/ComfyUI-WanVideoWrapper/wanvideo/modules/attention.py
+
     
 RUN cd /ComfyUI/custom_nodes && \
     git clone https://github.com/eddyhhlure1Eddy/IntelligentVRAMNode && \
