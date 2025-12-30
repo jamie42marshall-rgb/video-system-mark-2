@@ -49,14 +49,14 @@ RUN cd /ComfyUI/custom_nodes && \
     mv * ../
 
 # Fix SageAttention AFTER all custom nodes are installed (prevents other nodes from overwriting)
-# The SM90 kernel in newer versions is broken on H100, causing "SM90 kernel is not available" errors
-RUN echo "=== CURRENT SAGEATTENTION VERSION ===" && \
-    (pip show sageattention || echo "Not installed yet") && \
-    echo "=== FORCING WORKING VERSION 2.0.0 ===" && \
-    pip uninstall sageattention -y || echo "Nothing to uninstall" && \
-    pip install sageattention==2.0.0 --no-cache-dir && \
-    echo "=== FINAL SAGEATTENTION VERSION ===" && \
-    pip show sageattention
+# Force version 1.0.6 - last stable PyPI release, avoids broken SM90 kernel in 2.x betas
+RUN echo "=== SAGE ATTENTION FIX ===" && \
+    echo "Uninstalling any existing version..." && \
+    (pip uninstall sageattention -y 2>/dev/null || echo "Nothing to uninstall") && \
+    echo "Installing stable version 1.0.6..." && \
+    pip install --no-cache-dir sageattention==1.0.6 && \
+    echo "=== INSTALLED VERSION ===" && \
+    pip show sageattention || echo "Install may have failed"
     
 RUN cd /ComfyUI/custom_nodes && \
     git clone https://github.com/eddyhhlure1Eddy/IntelligentVRAMNode && \
