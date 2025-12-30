@@ -86,7 +86,7 @@
   },
   "136": {
     "inputs": {
-      "model_name": "umt5-xxl-enc-bf16.safetensors",
+      "model_name": "nsfw_wan_umt5-xxl_bf16.safetensors",
       "precision": "bf16",
       "load_device": "offload_device",
       "quantization": "disabled"
