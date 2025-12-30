@@ -44,7 +44,20 @@ RUN cd /ComfyUI/custom_nodes && \
     cd ComfyUI-WanVideoWrapper && \
     pip install -r requirements.txt
 
-RUN sed -i 's/"sageattn_qk_int8_pv_fp8_cuda_sm90"/"sageattn_qk_int8_pv_fp8_cuda++"/g' /ComfyUI/custom_nodes/ComfyUI-WanVideoWrapper/wanvideo/modules/attention.py
+# Show BEFORE state
+RUN echo "=== BEFORE PATCH ===" && \
+    grep -n "sageattn_qk_int8_pv_fp8_cuda" /ComfyUI/custom_nodes/ComfyUI-WanVideoWrapper/wanvideo/modules/attention.py | head -20 || echo "File not found"
+
+# Apply the fix
+RUN sed -i 's/sageattn_qk_int8_pv_fp8_cuda_sm90/sageattn_qk_int8_pv_fp8_cuda++/g' \
+    /ComfyUI/custom_nodes/ComfyUI-WanVideoWrapper/wanvideo/modules/attention.py
+
+# Show AFTER state and count changes
+RUN echo "=== AFTER PATCH ===" && \
+    grep -n "sageattn_qk_int8_pv_fp8_cuda" /ComfyUI/custom_nodes/ComfyUI-WanVideoWrapper/wanvideo/modules/attention.py | head -20 || echo "File not found" && \
+    echo "=== VERIFICATION ===" && \
+    echo "Occurrences of cuda_sm90: $(grep -c 'cuda_sm90' /ComfyUI/custom_nodes/ComfyUI-WanVideoWrapper/wanvideo/modules/attention.py || echo 0)" && \
+    echo "Occurrences of cuda++: $(grep -c 'cuda++' /ComfyUI/custom_nodes/ComfyUI-WanVideoWrapper/wanvideo/modules/attention.py || echo 0)"
 
     
 RUN cd /ComfyUI/custom_nodes && \
