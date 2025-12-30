@@ -8,21 +8,11 @@ RUN git clone https://github.com/comfyanonymous/ComfyUI.git && \
     cd /ComfyUI && \
     pip install -r requirements.txt
 
-# Install WanVideoWrapper early and fix SageAttention immediately (fail-fast if there's an issue)
+# Install WanVideoWrapper early (moved up for organization)
 RUN cd /ComfyUI/custom_nodes && \
     git clone https://github.com/kijai/ComfyUI-WanVideoWrapper && \
     cd ComfyUI-WanVideoWrapper && \
     pip install -r requirements.txt
-
-# Fix SageAttention - replace broken version with working one
-# The SM90 kernel in newer versions is broken on H100, causing "SM90 kernel is not available" errors
-RUN echo "=== CURRENT SAGEATTENTION VERSION ===" && \
-    pip show sageattention && \
-    echo "=== REPLACING WITH WORKING VERSION 2.0.0 ===" && \
-    pip uninstall sageattention -y && \
-    pip install sageattention==2.0.0 --no-cache-dir && \
-    echo "=== NEW SAGEATTENTION VERSION ===" && \
-    pip show sageattention
 
 # Now install other custom nodes
 RUN cd /ComfyUI/custom_nodes && \
@@ -50,6 +40,23 @@ RUN cd /ComfyUI/custom_nodes && \
     
 RUN cd /ComfyUI/custom_nodes && \
     git clone https://github.com/orssorbit/ComfyUI-wanBlockswap
+    
+RUN cd /ComfyUI/custom_nodes && \
+    git clone https://github.com/eddyhhlure1Eddy/IntelligentVRAMNode && \
+    git clone https://github.com/eddyhhlure1Eddy/auto_wan2.2animate_freamtowindow_server && \
+    git clone https://github.com/eddyhhlure1Eddy/ComfyUI-AdaptiveWindowSize && \
+    cd ComfyUI-AdaptiveWindowSize/ComfyUI-AdaptiveWindowSize && \
+    mv * ../
+
+# Fix SageAttention AFTER all custom nodes are installed (prevents other nodes from overwriting)
+# The SM90 kernel in newer versions is broken on H100, causing "SM90 kernel is not available" errors
+RUN echo "=== CURRENT SAGEATTENTION VERSION ===" && \
+    (pip show sageattention || echo "Not installed yet") && \
+    echo "=== FORCING WORKING VERSION 2.0.0 ===" && \
+    pip uninstall sageattention -y || echo "Nothing to uninstall" && \
+    pip install sageattention==2.0.0 --no-cache-dir && \
+    echo "=== FINAL SAGEATTENTION VERSION ===" && \
+    pip show sageattention
     
 RUN cd /ComfyUI/custom_nodes && \
     git clone https://github.com/eddyhhlure1Eddy/IntelligentVRAMNode && \
