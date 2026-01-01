@@ -217,8 +217,8 @@ def handler(job):
         prompt["569"]["inputs"]["value"] = steps
         logger.info(f"Total steps set to: {steps}")
         
-        # 고해상도 패스가 끝나는 지점 계산 (전체 스텝의 40%)
-        highsteps = int(steps * 0.4)
+        # 고해상도 패스가 끝나는 지점 계산 (전체 스텝의 50% - 원래 워크플로우와 동일)
+        highsteps = int(steps * 0.5)
         
         if "575" in prompt:  # 고해상도 패스 종료 스텝
             prompt["575"]["inputs"]["value"] = highsteps
