@@ -41,12 +41,27 @@ RUN cd /ComfyUI/custom_nodes && \
 RUN cd /ComfyUI/custom_nodes && \
     git clone https://github.com/orssorbit/ComfyUI-wanBlockswap
     
+# Clone IntelligentVRAMNode with retry
 RUN cd /ComfyUI/custom_nodes && \
-    git clone https://github.com/eddyhhlure1Eddy/IntelligentVRAMNode && \
-    git clone https://github.com/eddyhhlure1Eddy/auto_wan2.2animate_freamtowindow_server && \
-    git clone https://github.com/eddyhhlure1Eddy/ComfyUI-AdaptiveWindowSize && \
-    cd ComfyUI-AdaptiveWindowSize/ComfyUI-AdaptiveWindowSize && \
-    mv * ../
+    (git clone https://github.com/eddyhhlure1Eddy/IntelligentVRAMNode || \
+     (echo "First attempt failed, retrying in 5 seconds..." && sleep 5 && \
+      git clone https://github.com/eddyhhlure1Eddy/IntelligentVRAMNode))
+
+# Clone auto_wan2.2animate_freamtowindow_server with retry
+RUN cd /ComfyUI/custom_nodes && \
+    (git clone https://github.com/eddyhhlure1Eddy/auto_wan2.2animate_freamtowindow_server || \
+     (echo "First attempt failed, retrying in 5 seconds..." && sleep 5 && \
+      git clone https://github.com/eddyhhlure1Eddy/auto_wan2.2animate_freamtowindow_server))
+
+# Clone ComfyUI-AdaptiveWindowSize with retry and fix nested structure
+RUN cd /ComfyUI/custom_nodes && \
+    (git clone https://github.com/eddyhhlure1Eddy/ComfyUI-AdaptiveWindowSize || \
+     (echo "First attempt failed, retrying in 5 seconds..." && sleep 5 && \
+      git clone https://github.com/eddyhhlure1Eddy/ComfyUI-AdaptiveWindowSize)) && \
+    cd ComfyUI-AdaptiveWindowSize && \
+    mv ComfyUI-AdaptiveWindowSize/* . && \
+    mv ComfyUI-AdaptiveWindowSize/.* . 2>/dev/null || true && \
+    rmdir ComfyUI-AdaptiveWindowSize
 
 # Fix SageAttention AFTER all custom nodes are installed (prevents other nodes from overwriting)
 # Force version 1.0.6 - last stable PyPI release, avoids broken SM90 kernel in 2.x betas
