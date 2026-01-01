@@ -18,6 +18,7 @@ logger = logging.getLogger(__name__)
 
 server_address = os.getenv('SERVER_ADDRESS', '127.0.0.1')
 client_id = str(uuid.uuid4())
+
 def to_nearest_multiple_of_16(value):
     """주어진 값을 가장 가까운 16의 배수로 보정, 최소 16 보장"""
     try:
@@ -28,6 +29,7 @@ def to_nearest_multiple_of_16(value):
     if adjusted < 16:
         adjusted = 16
     return adjusted
+
 def process_input(input_data, temp_dir, output_filename, input_type):
     """입력 데이터를 처리하여 파일 경로를 반환하는 함수"""
     if input_type == "path":
@@ -196,6 +198,7 @@ def handler(job):
     prompt["220"]["inputs"]["seed"] = job_input["seed"]
     prompt["540"]["inputs"]["seed"] = job_input["seed"]
     prompt["540"]["inputs"]["cfg"] = job_input["cfg"]
+    
     # 해상도(폭/높이) 16배수 보정
     original_width = job_input["width"]
     original_height = job_input["height"]
@@ -209,13 +212,17 @@ def handler(job):
     prompt["236"]["inputs"]["value"] = adjusted_height
     prompt["498"]["inputs"]["context_overlap"] = job_input.get("context_overlap", 48)
     
-    # step 설정 적용
-    if "834" in prompt:
-        prompt["834"]["inputs"]["steps"] = steps
-        logger.info(f"Steps set to: {steps}")
-        lowsteps = int(steps*0.6)
-        prompt["829"]["inputs"]["step"] = lowsteps
-        logger.info(f"LowSteps set to: {lowsteps}")
+    # FIXED: step 설정 적용 - 올바른 노드 ID 사용
+    if "569" in prompt:  # 전체 스텝 수를 제어하는 노드
+        prompt["569"]["inputs"]["value"] = steps
+        logger.info(f"Total steps set to: {steps}")
+        
+        # 고해상도 패스가 끝나는 지점 계산 (전체 스텝의 40%)
+        highsteps = int(steps * 0.4)
+        
+        if "575" in prompt:  # 고해상도 패스 종료 스텝
+            prompt["575"]["inputs"]["value"] = highsteps
+            logger.info(f"High-res pass: steps 0-{highsteps}, Low-res pass: steps {highsteps}-{steps}")
 
     # 엔드 이미지가 있는 경우 617번 노드에 경로 적용 (FLF2V 전용)
     if end_image_path_local:
@@ -284,6 +291,7 @@ def handler(job):
             if attempt == max_attempts - 1:
                 raise Exception("웹소켓 연결 시간 초과 (3분)")
             time.sleep(5)
+    
     videos = get_videos(ws, prompt)
     ws.close()
 
