@@ -73,12 +73,6 @@ RUN echo "=== SAGE ATTENTION FIX ===" && \
     echo "=== INSTALLED VERSION ===" && \
     pip show sageattention || echo "Install may have failed"
     
-RUN cd /ComfyUI/custom_nodes && \
-    git clone https://github.com/eddyhhlure1Eddy/IntelligentVRAMNode && \
-    git clone https://github.com/eddyhhlure1Eddy/auto_wan2.2animate_freamtowindow_server && \
-    git clone https://github.com/eddyhhlure1Eddy/ComfyUI-AdaptiveWindowSize && \
-    cd ComfyUI-AdaptiveWindowSize/ComfyUI-AdaptiveWindowSize && \
-    mv * ../
 RUN wget -q https://huggingface.co/FX-FeiHou/wan2.2-Remix/resolve/main/NSFW/Wan2.2_Remix_NSFW_i2v_14b_high_lighting_v2.0.safetensors -O /ComfyUI/models/diffusion_models/Wan2.2_Remix_NSFW_i2v_14b_high_lighting_v2.0.safetensors
 RUN wget -q https://huggingface.co/FX-FeiHou/wan2.2-Remix/resolve/main/NSFW/Wan2.2_Remix_NSFW_i2v_14b_low_lighting_v2.0.safetensors -O /ComfyUI/models/diffusion_models/Wan2.2_Remix_NSFW_i2v_14b_low_lighting_v2.0.safetensors
 RUN wget -q https://huggingface.co/Comfy-Org/Wan_2.1_ComfyUI_repackaged/resolve/main/split_files/clip_vision/clip_vision_h.safetensors -O /ComfyUI/models/clip_vision/clip_vision_h.safetensors
