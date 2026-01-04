@@ -8,10 +8,10 @@ import uuid
 import logging
 import urllib.request
 import urllib.parse
-import binascii # Base64 에러 처리를 위해 import
+import binascii # Import for Base64 error handling (translated)
 import subprocess
 import time
-# 로깅 설정
+# Logging configuration (translated)
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -20,7 +20,7 @@ server_address = os.getenv('SERVER_ADDRESS', '127.0.0.1')
 client_id = str(uuid.uuid4())
 
 def to_nearest_multiple_of_16(value):
-    """주어진 값을 가장 가까운 16의 배수로 보정, 최소 16 보장"""
+    """Adjust given value to nearest multiple of 16, minimum 16 guaranteed (translated)"""
     try:
         numeric_value = float(value)
     except Exception:
@@ -31,19 +31,19 @@ def to_nearest_multiple_of_16(value):
     return adjusted
 
 def process_input(input_data, temp_dir, output_filename, input_type):
-    """입력 데이터를 처리하여 파일 경로를 반환하는 함수"""
+    """Function to process input data and return file path (translated)"""
     if input_type == "path":
-        # 경로인 경우 그대로 반환
+        # If it's a path, return as is (translated)
         logger.info(f"📁 경로 입력 처리: {input_data}")
         return input_data
     elif input_type == "url":
-        # URL인 경우 다운로드
+        # If it's a URL, download (translated)
         logger.info(f"🌐 URL 입력 처리: {input_data}")
         os.makedirs(temp_dir, exist_ok=True)
         file_path = os.path.abspath(os.path.join(temp_dir, output_filename))
         return download_file_from_url(input_data, file_path)
     elif input_type == "base64":
-        # Base64인 경우 디코딩하여 저장
+        # If it's Base64, decode and save (translated)
         logger.info(f"🔢 Base64 입력 처리")
         return save_base64_to_file(input_data, temp_dir, output_filename)
     else:
@@ -51,9 +51,9 @@ def process_input(input_data, temp_dir, output_filename, input_type):
 
         
 def download_file_from_url(url, output_path):
-    """URL에서 파일을 다운로드하는 함수"""
+    """Function to download file from URL (translated)"""
     try:
-        # wget을 사용하여 파일 다운로드
+        # Download file using wget (translated)
         result = subprocess.run([
             'wget', '-O', output_path, '--no-verbose', url
         ], capture_output=True, text=True)
@@ -73,15 +73,15 @@ def download_file_from_url(url, output_path):
 
 
 def save_base64_to_file(base64_data, temp_dir, output_filename):
-    """Base64 데이터를 파일로 저장하는 함수"""
+    """Function to save Base64 data to file (translated)"""
     try:
-        # Base64 문자열 디코딩
+        # Decode Base64 string (translated)
         decoded_data = base64.b64decode(base64_data)
         
-        # 디렉토리가 존재하지 않으면 생성
+        # Create directory if it doesn't exist (translated)
         os.makedirs(temp_dir, exist_ok=True)
         
-        # 파일로 저장
+        # Save as file (translated)
         file_path = os.path.abspath(os.path.join(temp_dir, output_filename))
         with open(file_path, 'wb') as f:
             f.write(decoded_data)
@@ -134,7 +134,7 @@ def get_videos(ws, prompt):
         videos_output = []
         if 'gifs' in node_output:
             for video in node_output['gifs']:
-                # fullpath를 이용하여 직접 파일을 읽고 base64로 인코딩
+                # Read file directly using fullpath and encode to base64 (translated)
                 with open(video['fullpath'], 'rb') as f:
                     video_data = base64.b64encode(f.read()).decode('utf-8')
                 videos_output.append(video_data)
@@ -152,7 +152,7 @@ def handler(job):
     logger.info(f"Received job input: {job_input}")
     task_id = f"task_{uuid.uuid4()}"
 
-    # 이미지 입력 처리 (image_path, image_url, image_base64 중 하나만 사용)
+    # Image input processing (use only one of image_path, image_url, image_base64) (translated)
     image_path = None
     if "image_path" in job_input:
         image_path = process_input(job_input["image_path"], task_id, "input_image.jpg", "path")
@@ -161,11 +161,11 @@ def handler(job):
     elif "image_base64" in job_input:
         image_path = process_input(job_input["image_base64"], task_id, "input_image.jpg", "base64")
     else:
-        # 기본값 사용
+        # Use default value (translated)
         image_path = "/example_image.png"
         logger.info("기본 이미지 파일을 사용합니다: /example_image.png")
 
-    # 엔드 이미지 입력 처리 (end_image_path, end_image_url, end_image_base64 중 하나만 사용)
+    # End image input processing (use only one of end_image_path, end_image_url, end_image_base64) (translated)
     end_image_path_local = None
     if "end_image_path" in job_input:
         end_image_path_local = process_input(job_input["end_image_path"], task_id, "end_image.jpg", "path")
@@ -174,16 +174,16 @@ def handler(job):
     elif "end_image_base64" in job_input:
         end_image_path_local = process_input(job_input["end_image_base64"], task_id, "end_image.jpg", "base64")
     
-    # LoRA 설정 확인 - 배열로 받아서 처리
+    # Check LoRA settings - receive and process as array (translated)
     lora_pairs = job_input.get("lora_pairs", [])
     
-    # 최대 4개 LoRA까지 지원
+    # Support up to 4 LoRAs (translated)
     lora_count = min(len(lora_pairs), 4)
     if lora_count > len(lora_pairs):
         logger.warning(f"LoRA 개수가 {len(lora_pairs)}개입니다. 최대 4개까지만 지원됩니다. 처음 4개만 사용합니다.")
         lora_pairs = lora_pairs[:4]
     
-    # 워크플로우 파일 선택 (end_image_*가 있으면 FLF2V 워크플로 사용)
+    # Select workflow file (use FLF2V workflow if end_image_* exists) (translated)
     workflow_file = "/new_Wan22_flf2v_api.json" if end_image_path_local else "/new_Wan22_api.json"
     logger.info(f"Using {'FLF2V' if end_image_path_local else 'single'} workflow with {lora_count} LoRA pairs")
     
@@ -191,15 +191,27 @@ def handler(job):
     
     length = job_input.get("length", 81)
     steps = job_input.get("steps", 10)
+    cfg = job_input.get("cfg", 1.0)
+    high_flow = job_input.get("high_flow", 9.0)
+    low_flow = job_input.get("low_flow", 9.0)
 
     prompt["244"]["inputs"]["image"] = image_path
     prompt["541"]["inputs"]["num_frames"] = length
     prompt["135"]["inputs"]["positive_prompt"] = job_input["prompt"]
     prompt["220"]["inputs"]["seed"] = job_input["seed"]
     prompt["540"]["inputs"]["seed"] = job_input["seed"]
-    prompt["540"]["inputs"]["cfg"] = job_input["cfg"]
     
-    # 해상도(폭/높이) 16배수 보정
+    # Apply CFG to both high pass and low pass (translated)
+    prompt["220"]["inputs"]["cfg"] = cfg
+    prompt["540"]["inputs"]["cfg"] = cfg
+    logger.info(f"CFG set to {cfg} for both high and low passes")
+    
+    # Apply flow shift to high pass and low pass (translated)
+    prompt["220"]["inputs"]["shift"] = high_flow
+    prompt["540"]["inputs"]["shift"] = low_flow
+    logger.info(f"Flow shift - High: {high_flow}, Low: {low_flow}")
+    
+    # Adjust resolution (width/height) to multiples of 16 (translated)
     original_width = job_input["width"]
     original_height = job_input["height"]
     adjusted_width = to_nearest_multiple_of_16(original_width)
@@ -212,45 +224,45 @@ def handler(job):
     prompt["236"]["inputs"]["value"] = adjusted_height
     prompt["498"]["inputs"]["context_overlap"] = job_input.get("context_overlap", 48)
     
-    # FIXED: step 설정 적용 - 올바른 노드 ID 사용
-    if "569" in prompt:  # 전체 스텝 수를 제어하는 노드
+    # Apply step settings (translated)
+    if "569" in prompt:
         prompt["569"]["inputs"]["value"] = steps
         logger.info(f"Total steps set to: {steps}")
         
-        # 고해상도 패스가 끝나는 지점 계산 (전체 스텝의 50% - 원래 워크플로우와 동일)
+        # Calculate where high-res pass ends (50% of total steps) (translated)
         highsteps = int(steps * 0.5)
         
-        if "575" in prompt:  # 고해상도 패스 종료 스텝
+        if "575" in prompt:
             prompt["575"]["inputs"]["value"] = highsteps
             logger.info(f"High-res pass: steps 0-{highsteps}, Low-res pass: steps {highsteps}-{steps}")
 
-    # 엔드 이미지가 있는 경우 617번 노드에 경로 적용 (FLF2V 전용)
+    # Apply path to node 617 if end image exists (FLF2V only) (translated)
     if end_image_path_local:
         prompt["617"]["inputs"]["image"] = end_image_path_local
     
-    # LoRA 설정 적용 - HIGH LoRA는 노드 279, LOW LoRA는 노드 553
+    # Apply LoRA settings - HIGH LoRA is node 279, LOW LoRA is node 553 (translated)
     if lora_count > 0:
-        # HIGH LoRA 노드 (279번)
+        # HIGH LoRA node (279) (translated)
         high_lora_node_id = "279"
         
-        # LOW LoRA 노드 (553번)
+        # LOW LoRA node (553) (translated)
         low_lora_node_id = "553"
         
-        # 입력받은 LoRA pairs 적용 (lora_1부터 시작)
+        # Apply received LoRA pairs (starting from lora_1) (translated)
         for i, lora_pair in enumerate(lora_pairs):
-            if i < 4:  # 최대 4개까지만
+            if i < 4:  # Up to 4 maximum (translated)
                 lora_high = lora_pair.get("high")
                 lora_low = lora_pair.get("low")
                 lora_high_weight = lora_pair.get("high_weight", 1.0)
                 lora_low_weight = lora_pair.get("low_weight", 1.0)
                 
-                # HIGH LoRA 설정 (노드 279번, lora_1부터 시작)
+                # HIGH LoRA settings (node 279, starting from lora_1) (translated)
                 if lora_high:
                     prompt[high_lora_node_id]["inputs"][f"lora_{i+1}"] = lora_high
                     prompt[high_lora_node_id]["inputs"][f"strength_{i+1}"] = lora_high_weight
                     logger.info(f"LoRA {i+1} HIGH applied to node 279: {lora_high} with weight {lora_high_weight}")
                 
-                # LOW LoRA 설정 (노드 553번, lora_1부터 시작)
+                # LOW LoRA settings (node 553, starting from lora_1) (translated)
                 if lora_low:
                     prompt[low_lora_node_id]["inputs"][f"lora_{i+1}"] = lora_low
                     prompt[low_lora_node_id]["inputs"][f"strength_{i+1}"] = lora_low_weight
@@ -259,11 +271,11 @@ def handler(job):
     ws_url = f"ws://{server_address}:8188/ws?clientId={client_id}"
     logger.info(f"Connecting to WebSocket: {ws_url}")
     
-    # 먼저 HTTP 연결이 가능한지 확인
+    # First check if HTTP connection is possible (translated)
     http_url = f"http://{server_address}:8188/"
     logger.info(f"Checking HTTP connection to: {http_url}")
     
-    # HTTP 연결 확인 (최대 1분)
+    # Check HTTP connection (maximum 1 minute) (translated)
     max_http_attempts = 180
     for http_attempt in range(max_http_attempts):
         try:
@@ -278,8 +290,8 @@ def handler(job):
             time.sleep(1)
     
     ws = websocket.WebSocket()
-    # 웹소켓 연결 시도 (최대 3분)
-    max_attempts = int(180/5)  # 3분 (1초에 한 번씩 시도)
+    # WebSocket connection attempt (maximum 3 minutes) (translated)
+    max_attempts = int(180/5)  # 3 minutes (attempt once per second) (translated)
     for attempt in range(max_attempts):
         import time
         try:
@@ -295,7 +307,7 @@ def handler(job):
     videos = get_videos(ws, prompt)
     ws.close()
 
-    # 이미지가 없는 경우 처리
+    # Handle case when there is no video (translated)
     for node_id in videos:
         if videos[node_id]:
             return {"video": videos[node_id][0]}
